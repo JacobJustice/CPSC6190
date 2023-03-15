@@ -27,4 +27,6 @@ things     directory of code for (1) the executable, and (2) specific
 TO COMPLETE YOUR PROJECT ASSIGNMENTS, YOU WILL CREATE CODE THAT YOU
 PLACE IN THE things DIRECTORY, AND, IF NECESSARY, THE MAKEFILE.
 
+TO RUN THE PROGRAM:
 
+make clean; make base sim; ./pbalitesim

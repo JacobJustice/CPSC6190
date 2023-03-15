@@ -7,7 +7,7 @@ import getpass
 possible_assignments = ['1', '2', '3', 'starterkit']
 
 username = getpass.getuser()
-assignment = "UNKNOWN"
+assignment = "1"
 
 while possible_assignments.count(assignment) < 1:
     print "Assignment \'" + assignment + "\' is NOT a valid assignment number."
