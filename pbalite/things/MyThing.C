@@ -7,6 +7,7 @@
 
 #include "MyThing.h"
 #include <cstdlib>
+#include <cstring>
 #include <GL/gl.h>   // OpenGL itself.
 #include <GL/glu.h>  // GLU support library.
 #include <GL/glut.h> // GLUT support library.
@@ -16,6 +17,7 @@
 using namespace std;
 
 using namespace pba;
+static int reset = 0;
 
 MyThing::MyThing(const std::string nam) :
  PbaThingyDingy (nam), 
@@ -48,6 +50,47 @@ void MyThing::Display()
    box.Display();
 }
 
+Mesh MyThing::LoadMesh(const char* model)
+{
+    cout <<"loading model "<< model<< " ...\n";
+
+    vector<unsigned int> vertexIndices;
+    vector<Vector> temp_vertices;
+
+    FILE * file = fopen(model, "r");
+    if (file == NULL){
+        cout << "CAN'T OPEN FILE\n";
+        throw invalid_argument("Invalid filename for model\n");
+    }
+
+    while (true)
+    {
+        char lineHeader[128];
+        int res = fscanf(file, "%s", lineHeader);
+        if (res == EOF){
+            break;
+        }
+        else
+        {
+            if ( strcmp(lineHeader, "v") == 0){
+                float x, y, z;
+                if (fscanf(file, "%f %f %f\n", &x, &y, &z) == 0){
+                    cout << "matching failure\n";
+                }
+                else{
+                    cout << x << " " << y << " " << z <<"\n";
+                    Vector vertex = Vector(x, y, z);
+                    temp_vertices.push_back(vertex);
+                }
+            }
+        }
+    }
+    cout << temp_vertices[0].X() << " "<< temp_vertices[0].Y() << " "<< temp_vertices[0].Z() << " " << "\n";
+
+    cout <<"loading complete!\n";
+    return Mesh();
+}
+
 void MyThing::Keyboard( unsigned char key, int x, int y )
 {
         PbaThingyDingy::Keyboard(key,x,y);
@@ -56,13 +99,13 @@ void MyThing::Keyboard( unsigned char key, int x, int y )
 
         if( key == 'g' )
         { 
-            cout << "gravity: " << gravity << '\n';
             gravity -= .1; 
+            cout << "gravity: " << gravity << '\n';
         }
         if( key == 'G' )
         { 
-            cout << "gravity: " << gravity << '\n';
             gravity += .1; 
+            cout << "gravity: " << gravity << '\n';
         }
 
         if( key == 'c' )
@@ -81,43 +124,9 @@ void MyThing::Keyboard( unsigned char key, int x, int y )
 void MyThing::solve()
 {
     // This is where the particle state - position and velocity - are updated
-    // in several steps.
-    GravityForce* force = new GravityForce(Vector(0,-gravity,0));
-    LeapfrogSolver solver = LeapfrogSolver(dt, force);
+    // 
     solver.solve(particles);
-   // Step 1: Advance the particle positions in time
-//   for(size_t i=0;i<particles.size();i++)
-//   {
-//      particles[i].position += particles[i].velocity * dt;
-//   }
-//
-//   //////////////////////////////////////////////////////////////////////////////////////////
-//   //
-//   //           THIS PART IS NOT A TYPICAL VELOCITY UPDATE
-//   //
-//   // Next the velocity is updated.  For most situations, this update comes
-//   // from forces on the particles. Here we do a simple, non-force, example.
-//
-//   // Step 2.1: find the center
-//   Vector center;
-//   for(size_t i=0;i<particles.size();i++)
-//   {
-//      center += particles[i].position;
-//   }
-//   center = center/particles.size();
-//
-//   // Step 2.2: update velocities to be perpendicular to the line from the particle to the center
-//   for(size_t i=0;i<particles.size();i++)
-//   {
-//      Vector n = particles[i].position - center;
-//      n.normalize();  // make it a unit vector
-//      double vmag = particles[i].velocity.magnitude();
-//      particles[i].velocity -= n*(n*particles[i].velocity);
-//      particles[i].velocity *= vmag/particles[i].velocity.magnitude(); // keep it the same magnitude
-//   }
-//   //
-//   //
-//   //////////////////////////////////////////////////////////////////////////////////////////////////
+
 
    // This concludes the solver action
    //
@@ -129,39 +138,39 @@ void MyThing::solve()
    {
       size_t nbincrease = 10;
       particles.resize(particles.size()+nbincrease);
-      Vector P, V;
+      Vector P = Vector((rand()/(double)RAND_MAX), (rand()/(double)RAND_MAX), (rand()/(double)RAND_MAX));
+      //Vector P = Vector(0,.5,0);
+      Vector V;
       Color C;
       std::cout << "Total Points " << particles.size() << std::endl;
       for(size_t i=particles.size()-nbincrease;i<particles.size();i++)
       {
-         double s = 2.0*drand48() - 1.0;
-         double ss = std::sqrt( 1.0 - s*s );
-         double theta = 2.0*3.14159265*drand48();
-         pba::Vector P( ss*std::cos(theta), s, ss*std::sin(theta) );
-         P *= std::pow( drand48(), 1.0/6.0 );
-         particles[i].position = P;
-         particles[i].color = pba::Color(drand48(),drand48(),drand48(),0);
-         particles[i].velocity = pba::Vector(drand48()-0.5,drand48()-0.5,drand48()-0.5);
+        particles[i].position = P;
+        particles[i].color = pba::Color(drand48(),drand48(),drand48(),0);
+        particles[i].velocity = pba::Vector(drand48()-0.5,drand48()-0.5,drand48()-0.5);
       }
    }
 }
 
 void MyThing::Reset()
 {
+    cout << "RESET CALLED " << reset << '\n';
+    reset++;
    // Distribute particles with random positions
-   particles.clear();
-   particles.resize(1);
-   for(size_t i=0;i<particles.size();i++)
-   {
-      double s = 2.0*drand48() - 1.0;
-      double ss = std::sqrt( 1.0 - s*s );
-      double theta = 2.0*3.14159265*drand48();
-      pba::Vector P( ss*std::cos(theta), s, ss*std::sin(theta) );
-      P *= std::pow( drand48(), 1.0/6.0 );
-      particles[i].position = P;
-      particles[i].color = pba::Color(drand48(),drand48(),drand48(),0);
-      particles[i].velocity = pba::Vector(drand48()-0.5,drand48()-0.5,drand48()-0.5);
-   }
+//    particles.clear();
+//   particles.resize(20);
+//   for(size_t i=0;i<particles.size();i++)
+//   {
+//      double s = 2.0*drand48() - 1.0;
+//      double ss = std::sqrt( 1.0 - s*s );
+//      double theta = 2.0*3.14159265*drand48();
+//      pba::Vector P( ss*std::cos(theta), s, ss*std::sin(theta) );
+//      P *= std::pow( drand48(), 1.0/6.0 );
+//      particles[i].position = P;
+//      particles[i].color = pba::Color(drand48(),drand48(),drand48(),0);
+//      particles[i].velocity = pba::Vector(drand48()-0.5,drand48()-0.5,drand48()-0.5);
+//   }
+    Mesh mesh = LoadMesh("../models/bunny_superlo_scaled.obj");
 }
 
 void MyThing::Usage()

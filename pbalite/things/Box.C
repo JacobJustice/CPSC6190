@@ -21,19 +21,16 @@ void Box::Display()
  * on the plane that was intersected
  */
 
-bool detect_intersection(Vector start, Vector end, double& location, int& plane_ind)
+bool Box::detectIntersection(Vector start, Vector end, double& location, int& plane_ind)
 {
     for (Plane pl: planes)
     {
-        double loc = 2.0;
-        if (pl.detectIntersection(start, end, location)
+        if (pl.detectIntersection(start, end, location))
         {
-            if (loc < location)
-            {
-                location = loc;
-                plane_ind = i;
-            }
+            plane_ind = pl.id;
+            return true;
         }
     }
+    return false;
 }
 

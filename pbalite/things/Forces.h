@@ -1,3 +1,6 @@
+#ifndef _FORCES_
+#define _FORCES_
+
 #include "Vector.h"
 #include <iostream>
 
@@ -20,3 +23,4 @@ class GravityForce : public Force
 
         Vector gravity;
 };
+#endif // _FORCES_

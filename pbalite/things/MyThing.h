@@ -1,3 +1,5 @@
+#ifndef _MYTHING_
+#define _MYTHING_
 //-------------------------------------------------------
 //
 //  MyThing.h
@@ -15,6 +17,7 @@
 #include "Color.h"
 #include "PbaThing.h"
 #include "ParticleState.h"
+#include "Mesh.h"
 #include "Box.h"
 #include "Solvers.h"
 
@@ -69,8 +72,10 @@ class MyThing: public PbaThingyDingy
     //! here as to what the keyboard option is.
     void Usage();
 
-
   private:
+
+
+    Mesh LoadMesh(const char* model);
 
 	// controls gravity
     double gravity;
@@ -85,6 +90,8 @@ class MyThing: public PbaThingyDingy
     Vector urc = Vector(1,1,1);
     Box box = Box(llc, urc);
 
+    GravityForce* force = new GravityForce(Vector(0,-gravity,0));
+    LeapfrogSolver solver = LeapfrogSolver(dt, box, restitution, force);
 
 
     // This is all of the particles in the system
@@ -102,7 +109,4 @@ pba::PbaThing CreateMyThing();
 
 }
 
-
-
-
-
+#endif // _MYTHING_

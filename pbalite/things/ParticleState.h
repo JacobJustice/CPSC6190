@@ -30,6 +30,7 @@ class ParticleState
    Vector velocity;
    Color color;
    float mass;
+   vector<ParticleState> connections;
 };
 }
 #endif
