@@ -22,40 +22,40 @@ class Force
 class GravityForce : public Force
 {
     public: 
-        GravityForce(Vector g) : gravity(g)
+        GravityForce(double* g) : gravity(g)
         {}
         Vector computeForce(ParticleState p);
 
-        Vector gravity;
+        double* gravity;
 };
 class SpringForce : public Force
 {
     public:
-        SpringForce(double s, double f) : springCoef{s}, frictionCoef{f}
+        SpringForce(double* s, double* f) : springCoef{s}, frictionCoef{f}
         {}
         Vector computeForce(ParticleState p);
 
-        double springCoef;
-        double frictionCoef;
+        double* springCoef;
+        double* frictionCoef;
 };
 
 class AreaForce : public Force
 {
     public:
-        AreaForce(double s, double f) : areaCoef{s}, frictionCoef{f}
+        AreaForce(double* s, double* f) : areaCoef{s}, frictionCoef{f}
         {}
         Vector computeForce(ParticleState p);
 
-        double areaCoef;
-        double frictionCoef;
+        double* areaCoef;
+        double* frictionCoef;
 };
 
 
 class SoftBodyForce : public Force
 {
     public:
-        SoftBodyForce(Vector gravityVector, double springCoef, double frictionCoef, double areaCoef, double areaFrictionCoef) : 
-            gravityForce(gravityVector),
+        SoftBodyForce(double* gravity, double* springCoef, double* frictionCoef, double* areaCoef, double* areaFrictionCoef) : 
+            gravityForce(gravity),
             springForce(springCoef, frictionCoef),
             areaForce(areaCoef, areaFrictionCoef)
         {

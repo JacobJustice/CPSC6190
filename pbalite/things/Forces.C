@@ -3,7 +3,7 @@
 
 Vector GravityForce::computeForce(ParticleState p)
 {
-    return gravity;
+    return Vector (0, *gravity*-1, 0);
 }
 
 Vector SpringForce::computeForce(ParticleState p)
@@ -22,12 +22,16 @@ Vector SpringForce::computeForce(ParticleState p)
 
         Vector r = p_j->position - p.position;
         Vector r_rmag = r/r.magnitude();
-        springForce += springCoef * r_rmag * (r.magnitude() - e->length);
+        springForce += *springCoef * r_rmag * (r.magnitude() - e->length);
 
         // friction force
         Vector delta_vab = e->b->velocity - e->a->velocity;
-        frictionForce += frictionCoef * (r_rmag * delta_vab) * r_rmag;
+        r.normalize();
+        frictionForce += *frictionCoef * (r * delta_vab) * r;
     }
+    //cout<< "springForce" << springForce.X() << " "<< springForce.Y() << " "<< springForce.Z() << "\n";
+    //cout<< "frictionForce" << frictionForce.X() << " "<< frictionForce.Y() << " "<< frictionForce.Z() << "\n";
+    //return Vector(0,0,0);
 
     return springForce - frictionForce;
 }
@@ -41,32 +45,46 @@ Vector AreaForce::computeForce(ParticleState p)
     for (SoftTriangle* st: p.softTris)
     {
         // area force
+        //// cout << st << "\n";
+        //cout << st->a->position.X() << " "<< st->a->position.Y() << " "<< st->a->position.Z() << "\n";
+        //cout << st->b->position.X() << " "<< st->b->position.Y() << " "<< st->b->position.Z() << "\n";
+        //cout << st->c->position.X() << " "<< st->c->position.Y() << " "<< st->c->position.Z() << "\n";
+        //cout << "st->area:" <<st->area << "\n";
         Vector e_ab = st->a->position - st->b->position;
+        //cout << e_ab.X() << " "<< e_ab.Y() << " "<< e_ab.Z() << "\n";
+
         Vector e_bc = st->b->position - st->c->position;
-        double area = (1/2)*(e_ab^e_bc).magnitude();
+        //cout << e_bc.X() << " "<< e_bc.Y() << " "<< e_bc.Z() << "\n";
+        Vector abcrossbc = e_ab^e_bc;
+        //cout << abcrossbc.X() << " "<< abcrossbc.Y() << " "<< abcrossbc.Z() << "\n";
+        //cout << abcrossbc.magnitude() << "\n";
+        double area = (.5)*(e_ab^e_bc).magnitude();
+        //cout << "area:"<<area<<"\n";
         Vector d;
         if (st->a->ID() == p.ID()){
             Vector e_ac = st->a->position - st->c->position;
-            d = e_ab + e_ac;
-            d /= 2;
+            d = .5*(e_ab + e_ac);
         }
         else if (st->b->ID() == p.ID()){
             Vector e_ba = st->b->position - st->a->position;
-            d = e_ba + e_bc;
-            d /= 2;
+            d = .5*(e_ba + e_bc);
         }
         else{ 
             Vector e_ac = st->a->position - st->c->position;
-            d = e_ac + e_bc;
-            d /= 2;
+            d = .5*(e_ac + e_bc);
         }
-        areaVector += areaCoef*d*((area/st->area) - 1);
+        //cout << d.X() << " "<< d.Y() << " "<< d.Z() << "\n";
+        //cout << *areaCoef << "\n\n";
+        areaVector += *areaCoef*d*((area/st->area) - 1);
 
         // compute friction force here so I don't have to compute d twice
         d.normalize();
         Vector delta_vabc = p.velocity - .5*(st->b->velocity+st->c->velocity);
-        frictionVector += frictionCoef * (d * delta_vabc) * d;
+        //cout << *frictionCoef<< "\n\n";
+        frictionVector += *frictionCoef * (d * delta_vabc) * d;
     }
+    //cout<< "areaVector" << areaVector.X() << " "<< areaVector.Y() << " "<< areaVector.Z() << "\n";
+    //cout<< "frictionVector" << frictionVector.X() << " "<< frictionVector.Y() << " "<< frictionVector.Z() << "\n";
 
     return areaVector - frictionVector;
 }

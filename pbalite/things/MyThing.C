@@ -17,15 +17,14 @@
 using namespace std;
 
 using namespace pba;
-static int reset = 0;
 
 MyThing::MyThing(const std::string nam) :
  PbaThingyDingy (nam), 
  gravity		(1.0),
  spring			(1.0),
- friction		(0.1),
+ friction		(0.0),
  area			(1.0),
- areaFriction	(1.0),
+ areaFriction	(0.1),
  restitution	(1.0),
  emit       	(false)
 {
@@ -158,8 +157,8 @@ void MyThing::solve()
 
 void MyThing::Reset()
 {
-    cout << "RESET CALLED " << reset << '\n';
-    reset++;
+    //cout << "RESET CALLED " << reset++ << '\n';
+
    // Distribute particles with random positions
 //    particles.clear();
 //   particles.resize(20);
@@ -174,7 +173,8 @@ void MyThing::Reset()
 //      particles[i].color = pba::Color(drand48(),drand48(),drand48(),0);
 //      particles[i].velocity = pba::Vector(drand48()-0.5,drand48()-0.5,drand48()-0.5);
 //   }
-    mesh = Mesh("../models/bunny_superlo_scaled.obj");
+    mesh = Mesh("../models/bunny_superlo_scaled.obj", Vector(drand48()*.7,.5, drand48()*.7));
+    solver = MeshSolver(dt, box, &restitution, force);
 }
 
 void MyThing::Usage()
@@ -186,7 +186,7 @@ void MyThing::Usage()
    cout << "C/c          increase/decrease coefficient of restitution \n";
    cout << "K/k          increase/decrease spring force\n";
    cout << "F/f          increase/decrease friction force \n";
-   cout << "A/a          increase/decrease  \n";
+   cout << "A/a          increase/decrease area force \n";
    cout << "S/s          increase/decrease area force friction \n";
 }
 

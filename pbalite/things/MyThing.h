@@ -97,10 +97,9 @@ class MyThing: public PbaThingyDingy
     Vector llc = Vector(-1,-1,-1);
     Vector urc = Vector(1,1,1);
     Box box = Box(llc, urc);
-    Mesh mesh = Mesh("../models/bunny_superlo_scaled.obj");
-
-    SoftBodyForce* force = new SoftBodyForce(Vector(0,-gravity,0), spring, friction, area, areaFriction);
-    MeshSolver solver = MeshSolver(dt, box, restitution, force);
+    Mesh mesh;
+    SoftBodyForce* force = new SoftBodyForce(&gravity, &spring, &friction, &area, &areaFriction);
+    MeshSolver solver = MeshSolver(dt, box, &restitution, force);
 
 
     // This is all of the particles in the system

@@ -39,7 +39,7 @@ class SoftTriangle
             c = C;
             Vector e_ab = a->position - b->position;
             Vector e_bc = b->position - c->position;
-            area = (1/2)*(e_ab^e_bc).magnitude();
+            area = (.5)*(e_ab^e_bc).magnitude();
         }
         // defining 3 vertices of a triangle
         ParticleState* a;
@@ -52,11 +52,15 @@ class Mesh
 {
     private:
         void LoadMesh(const char* fn);
+        Vector posOffset;
 
     public:
+        Mesh()
+        {}
 
-        Mesh(const char* fn)
+        Mesh(const char* fn, Vector pO)
         {
+            posOffset = pO;
             LoadMesh(fn);
         }
         void Display();
@@ -64,7 +68,6 @@ class Mesh
         std::vector<ParticleState> particles;
         std::vector<Edge> edges;
         std::vector<SoftTriangle> softTris;
-
 };
 }
 #endif // MESH_H
