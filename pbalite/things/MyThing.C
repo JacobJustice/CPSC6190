@@ -22,6 +22,10 @@ static int reset = 0;
 MyThing::MyThing(const std::string nam) :
  PbaThingyDingy (nam), 
  gravity		(1.0),
+ spring			(1.0),
+ friction		(0.1),
+ area			(1.0),
+ areaFriction	(1.0),
  restitution	(1.0),
  emit       	(false)
 {
@@ -48,47 +52,7 @@ void MyThing::Display()
    }
    glEnd();
    box.Display();
-}
-
-Mesh MyThing::LoadMesh(const char* model)
-{
-    cout <<"loading model "<< model<< " ...\n";
-
-    vector<unsigned int> vertexIndices;
-    vector<Vector> temp_vertices;
-
-    FILE * file = fopen(model, "r");
-    if (file == NULL){
-        cout << "CAN'T OPEN FILE\n";
-        throw invalid_argument("Invalid filename for model\n");
-    }
-
-    while (true)
-    {
-        char lineHeader[128];
-        int res = fscanf(file, "%s", lineHeader);
-        if (res == EOF){
-            break;
-        }
-        else
-        {
-            if ( strcmp(lineHeader, "v") == 0){
-                float x, y, z;
-                if (fscanf(file, "%f %f %f\n", &x, &y, &z) == 0){
-                    cout << "matching failure\n";
-                }
-                else{
-                    cout << x << " " << y << " " << z <<"\n";
-                    Vector vertex = Vector(x, y, z);
-                    temp_vertices.push_back(vertex);
-                }
-            }
-        }
-    }
-    cout << temp_vertices[0].X() << " "<< temp_vertices[0].Y() << " "<< temp_vertices[0].Z() << " " << "\n";
-
-    cout <<"loading complete!\n";
-    return Mesh();
+   mesh.Display();
 }
 
 void MyThing::Keyboard( unsigned char key, int x, int y )
@@ -108,6 +72,46 @@ void MyThing::Keyboard( unsigned char key, int x, int y )
             cout << "gravity: " << gravity << '\n';
         }
 
+        if( key == 'k' )
+        { 
+            spring -= .1; 
+            cout << "spring: " << spring << '\n';
+        }
+        if( key == 'K' )
+        { 
+            spring += .1; 
+            cout << "spring: " << spring << '\n';
+        }
+        if( key == 'f' )
+        { 
+            friction -= .1; 
+            cout << "friction: " << friction << '\n';
+        }
+        if( key == 'F' )
+        { 
+            friction += .1; 
+            cout << "friction: " << friction << '\n';
+        }
+        if( key == 'a' )
+        { 
+            area -= .1; 
+            cout << "area: " << area << '\n';
+        }
+        if( key == 'A' )
+        { 
+            area += .1; 
+            cout << "area: " << area << '\n';
+        }
+        if( key == 's' )
+        { 
+            areaFriction -= .1; 
+            cout << "areaFriction: " << areaFriction << '\n';
+        }
+        if( key == 'S' )
+        { 
+            areaFriction += .1; 
+            cout << "areaFriction: " << areaFriction << '\n';
+        }
         if( key == 'c' )
         { 
             restitution -= .1; 
@@ -125,7 +129,7 @@ void MyThing::solve()
 {
     // This is where the particle state - position and velocity - are updated
     // 
-    solver.solve(particles);
+    solver.solve(mesh);
 
 
    // This concludes the solver action
@@ -134,22 +138,22 @@ void MyThing::solve()
    //
    //
    // This is where we can add more particles
-   if(emit)
-   {
-      size_t nbincrease = 10;
-      particles.resize(particles.size()+nbincrease);
-      Vector P = Vector((rand()/(double)RAND_MAX), (rand()/(double)RAND_MAX), (rand()/(double)RAND_MAX));
-      //Vector P = Vector(0,.5,0);
-      Vector V;
-      Color C;
-      std::cout << "Total Points " << particles.size() << std::endl;
-      for(size_t i=particles.size()-nbincrease;i<particles.size();i++)
-      {
-        particles[i].position = P;
-        particles[i].color = pba::Color(drand48(),drand48(),drand48(),0);
-        particles[i].velocity = pba::Vector(drand48()-0.5,drand48()-0.5,drand48()-0.5);
-      }
-   }
+//   if(emit)
+//   {
+//      size_t nbincrease = 10;
+//      particles.resize(particles.size()+nbincrease);
+//      Vector P = Vector((rand()/(double)RAND_MAX), (rand()/(double)RAND_MAX), (rand()/(double)RAND_MAX));
+//      //Vector P = Vector(0,.5,0);
+//      Vector V;
+//      Color C;
+//      std::cout << "Total Points " << particles.size() << std::endl;
+//      for(size_t i=particles.size()-nbincrease;i<particles.size();i++)
+//      {
+//        particles[i].position = P;
+//        particles[i].color = pba::Color(drand48(),drand48(),drand48(),0);
+//        particles[i].velocity = pba::Vector(drand48()-0.5,drand48()-0.5,drand48()-0.5);
+//      }
+//   }
 }
 
 void MyThing::Reset()
@@ -170,7 +174,7 @@ void MyThing::Reset()
 //      particles[i].color = pba::Color(drand48(),drand48(),drand48(),0);
 //      particles[i].velocity = pba::Vector(drand48()-0.5,drand48()-0.5,drand48()-0.5);
 //   }
-    Mesh mesh = LoadMesh("../models/bunny_superlo_scaled.obj");
+    mesh = Mesh("../models/bunny_superlo_scaled.obj");
 }
 
 void MyThing::Usage()
@@ -180,6 +184,10 @@ void MyThing::Usage()
    cout << "e            toggle particle emission on/off\n";
    cout << "G/g          increase/decrease gravity \n";
    cout << "C/c          increase/decrease coefficient of restitution \n";
+   cout << "K/k          increase/decrease spring force\n";
+   cout << "F/f          increase/decrease friction force \n";
+   cout << "A/a          increase/decrease  \n";
+   cout << "S/s          increase/decrease area force friction \n";
 }
 
 

@@ -73,12 +73,20 @@ class MyThing: public PbaThingyDingy
     void Usage();
 
   private:
-
-
-    Mesh LoadMesh(const char* model);
-
 	// controls gravity
     double gravity;
+
+    // spring coefficient for soft body
+    double spring;
+
+    // edge friction coefficient for soft body
+    double friction; 
+
+    // area force coefficient for soft body
+    double area;
+
+    //  friction coefficient for soft body
+    double areaFriction; 
 
     // coefficient of restitution
     double restitution;
@@ -89,9 +97,10 @@ class MyThing: public PbaThingyDingy
     Vector llc = Vector(-1,-1,-1);
     Vector urc = Vector(1,1,1);
     Box box = Box(llc, urc);
+    Mesh mesh = Mesh("../models/bunny_superlo_scaled.obj");
 
-    GravityForce* force = new GravityForce(Vector(0,-gravity,0));
-    LeapfrogSolver solver = LeapfrogSolver(dt, box, restitution, force);
+    SoftBodyForce* force = new SoftBodyForce(Vector(0,-gravity,0), spring, friction, area, areaFriction);
+    MeshSolver solver = MeshSolver(dt, box, restitution, force);
 
 
     // This is all of the particles in the system

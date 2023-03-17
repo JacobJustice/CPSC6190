@@ -2,9 +2,12 @@
 #define _SOLVERS_
 
 #include <vector>
+#include <cmath>
+#include <iostream>
 #include "Forces.h"
 #include "ParticleState.h"
 #include "Box.h"
+#include "Mesh.h"
 
 using namespace std;
 using namespace pba;
@@ -13,7 +16,8 @@ class Solver
 {
     public:
         Solver(double dt, Box b, double& r) : deltaT{dt}, box{b}, restitution{r}
-        {}
+        {
+        }
         virtual void solve(std::vector<ParticleState>& particles){};
 
         double deltaT{};
@@ -53,4 +57,32 @@ class LeapfrogSolver : public Solver
         VelocitySolver v_s;
         PositionSolver p_s2;
 };
+
+const double alpha = 1.0/(4.0-pow(4.0, 1.0/3.0));
+const double beta = (1.0 - (2.0*alpha));
+class SixthOrderSolver : public Solver
+{
+    public:
+        SixthOrderSolver(double dt, Box b, double& r, Force* f) : 
+            Solver(dt, b, r), l_s_alpha(alpha*dt, b, r, f),l_s_beta(beta*dt, b, r, f)
+        {
+        };
+        void solve(std::vector<ParticleState>& particles);
+
+    private:
+        LeapfrogSolver l_s_alpha;
+        LeapfrogSolver l_s_beta;
+};
+class MeshSolver : public Solver
+{
+    public:
+        MeshSolver(double dt, Box b, double& r, Force* f) : Solver(dt, b, r), s_o_s(dt, b, r, f)
+        {
+        }
+        void solve(Mesh& m);
+
+        private:
+            SixthOrderSolver s_o_s;
+};
+
 #endif // _SOLVERS_

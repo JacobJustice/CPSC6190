@@ -7,6 +7,7 @@ OFILES = base/PbaViewer.o \
 	 base/ScreenCapturePPM.o \
 	 things/MyThing.o \
 	 things/Box.o \
+	 things/Mesh.o \
 	 things/Plane.o \
 	 things/Forces.o \
 	 things/Solvers.o \

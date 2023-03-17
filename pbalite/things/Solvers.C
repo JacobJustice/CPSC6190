@@ -3,10 +3,13 @@
 
 void VelocitySolver::solve(std::vector<ParticleState>& particles)
 {
-    //cout << "velocity ";
     for (ParticleState& p: particles)
     {
-        p.velocity = p.velocity + (deltaT/p.mass) * force->computeForce(p.position, p.velocity);
+//        cout << p.velocity.X() << "\n";
+//        cout << "p.velocity:" << p.velocity.X() << ',' << p.velocity.Y() << ',' << p.velocity.Z() << '\n';
+//        cout << (deltaT/p.mass) <<"   " << force->computeForce(p.position, p.velocity).magnitude() << "\n";
+        p.velocity = p.velocity + (deltaT/p.mass) * force->computeForce(p);
+//        cout << "POSTp.velocity:" << p.velocity.X() << ',' << p.velocity.Y() << ',' << p.velocity.Z() << '\n';
     }
 }
 
@@ -57,10 +60,26 @@ void PositionSolver::solveParticle(ParticleState& particle, double dT, int depth
     }
 }
 
+void MeshSolver::solve(Mesh& m)
+{
+    s_o_s.solve(m.particles);
+}
+
+void SixthOrderSolver::solve(std::vector<ParticleState>& particles)
+{
+    //cout << "SixthOrderSolver " << alpha << " " << beta << " " << deltaT << "\n";
+    l_s_alpha.solve(particles);
+    l_s_beta.solve(particles);
+    l_s_alpha.solve(particles);
+}
+
 void LeapfrogSolver::solve(std::vector<ParticleState>& particles)
 {
     //cout << "leapfrog\n";
     p_s1.solve(particles);
+    //cout << particles[0].velocity.X() << " "<< particles[0].velocity.Y() << " "<< particles[0].velocity.Z() << "\n";
     v_s.solve(particles);
+    //cout << particles[0].velocity.X() << " "<< particles[0].velocity.Y() << " "<< particles[0].velocity.Z() << "\n";
+    //cout << deltaT << "\n";
     p_s2.solve(particles);
 }

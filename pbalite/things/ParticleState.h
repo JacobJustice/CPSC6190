@@ -3,8 +3,13 @@
 
 #include "Vector.h"
 #include "Color.h"
+#include <vector>
+
 
 namespace pba{
+
+class SoftTriangle;
+class Edge;
 
 ////////////////////////////////////////////////
 //
@@ -22,15 +27,35 @@ class ParticleState
         position(Vector(0,0,0)),
         velocity(Vector(0,0,0)),
         color(Color(1,1,1,1)),
-        mass(1.0)
-    {};
-   ~ParticleState(){};	   
+        mass(1.0),
+        assignedID{false}
+        {};
+       ~ParticleState(){};	   
 
-   Vector position;
-   Vector velocity;
-   Color color;
-   float mass;
-   vector<ParticleState> connections;
+       Vector position;
+       Vector velocity;
+       Color color;
+       float mass;
+       //which edges is this particle a part of?
+       std::vector<Edge*> connections;
+       //which triangles is this particle a part of?
+       std::vector<SoftTriangle*> softTris;
+
+   private:
+       size_t id;
+       bool assignedID;
+
+   public:
+       void assignID(size_t newID)
+       {
+           id = newID;
+           assignedID= true;
+       }
+       bool idAssigned() {return assignedID;}
+       size_t ID() {return id;}
+
+
+
 };
 }
 #endif
