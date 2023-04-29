@@ -13,6 +13,7 @@
 //--------------------------------------------------------
 
 
+#include <cstdlib>
 #include "Vector.h"
 #include "Color.h"
 #include "PbaThing.h"
@@ -91,19 +92,25 @@ class MyThing: public PbaThingyDingy
     // coefficient of restitution
     double restitution;
 
+    double avoidance;
+    double velocityMatching;
+    double centering;
+    double maxForce;
+
     // flag for whether to create more particles
     bool emit;
 
     Vector llc = Vector(-1,-1,-1);
     Vector urc = Vector(1,1,1);
     Box box = Box(llc, urc);
-    Mesh mesh;
-    SoftBodyForce* force = new SoftBodyForce(&gravity, &spring, &friction, &area, &areaFriction);
-    MeshSolver solver = MeshSolver(dt, box, &restitution, force);
-
 
     // This is all of the particles in the system
     std::vector<ParticleState> particles;
+
+    BoidForce boidforce = BoidForce(centering, velocityMatching, avoidance, maxForce, particles);
+    LeapfrogSolver solver = LeapfrogSolver(dt, box, &restitution, &boidforce);
+
+
     //
     //
     //////////////////////////////////////////////// 

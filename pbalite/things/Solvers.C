@@ -8,7 +8,7 @@ void VelocitySolver::solve(std::vector<ParticleState>& particles)
 //        cout << p.velocity.X() << "\n";
 //        cout << "p.velocity:" << p.velocity.X() << ',' << p.velocity.Y() << ',' << p.velocity.Z() << '\n';
 //        cout << (deltaT/p.mass) <<"   " << force->computeForce(p.position, p.velocity).magnitude() << "\n";
-          p.velocity = p.velocity + (deltaT/p.mass) * force->computeForce(p);
+        p.velocity = p.velocity + (deltaT/p.mass) * force->computeForce(p);
 //        cout << "POSTp.velocity:" << p.velocity.X() << ',' << p.velocity.Y() << ',' << p.velocity.Z() << '\n';
     }
 }
@@ -20,7 +20,6 @@ void PositionSolver::solve(std::vector<ParticleState>& particles)
     {
         solveParticle(p, deltaT, 0);
     }
-    
 }
 
 /*

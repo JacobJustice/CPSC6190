@@ -1,5 +1,99 @@
 #include "Forces.h"
+#include <cstdlib>
 #include <iostream>
+
+Vector BoidForce::computeForce(ParticleState p)
+{
+    if (p.ID() == 0)
+    {
+        return Vector(drand48()-0.5,drand48()-0.5,drand48()-0.5);
+    }
+    Vector forceSum = Vector(0,0,0);
+    double residual = 0;
+    Vector av = aForce.computeForce(p, particles);
+    Vector vm = Vector(0,0,0);
+    Vector c = Vector(0,0,0);
+
+    double av_mag = av.magnitude();
+    if (av_mag >= maxForce)
+    {
+        av = (av/av_mag)*maxForce;
+    }
+    else
+    {
+        residual = maxForce - av_mag;
+        vm = vmForce.computeForce(p, particles);
+        double vm_mag = vm.magnitude();
+        if (vm_mag >= residual)
+        {
+            vm = (vm/vm_mag) * residual;
+        }
+        else
+        {
+            residual = residual - vm_mag;
+            c = cForce.computeForce(p, particles);
+            double c_mag = c.magnitude();
+            if (c_mag >= residual)
+            {
+                c = (c/c_mag)*residual; 
+            }
+        }
+    }
+    forceSum = av + vm + c;
+    return forceSum;
+}
+
+Vector AvoidanceForce::computeForce(ParticleState p, std::vector<ParticleState> particles)
+{
+    Vector out = Vector(0,0,0);
+    for (ParticleState p_j : particles)
+    {
+        if (p_j.ID() != p.ID())
+        {
+            Vector diff = (p_j.position - p.position);
+            double magnitude = diff.magnitude();
+            Vector av = -1*diff/(magnitude*magnitude);
+            out = out + ((avoidanceCoef)*av)*BoidForce::k_d(p.position, p_j.position)*BoidForce::k_theta(p, p_j);
+        }
+    }
+//    cout << "average_magnitude == " << magnitude/particles.size() << "\n";
+//    if (p.ID() == 19)
+//    {
+//        cout << p.ID() << " ";
+//    	cout << "avoidanceCoef " << avoidanceCoef <<  " ";
+//        cout<< "avoidanceForce:" << out.X() << " "<< out.Y() << " "<< out.Z() << "\n";
+//    }
+    return out;
+}
+
+Vector VelocityMatchingForce::computeForce(ParticleState p, std::vector<ParticleState> particles)
+{
+    Vector out = Vector(0,0,0);
+    for (ParticleState p_j : particles)
+    {
+        if (p_j.ID() != p.ID())
+        {
+            Vector diff = (p_j.velocity - p.velocity);
+            out = out + (velocityMatchingCoef * diff)*BoidForce::k_d(p.position, p_j.position)*BoidForce::k_theta(p, p_j);
+        }
+    }
+    return out; 
+}
+
+Vector CenteringForce::computeForce(ParticleState p, std::vector<ParticleState> particles)
+{
+    Vector out = Vector(0,0,0);
+    for (ParticleState p_j : particles)
+    {
+        if (p_j.ID() != p.ID())
+        {
+            Vector diff = (p_j.position - p.position);
+            out = out + (centeringCoef * diff)*BoidForce::k_d(p.position, p_j.position)*BoidForce::k_theta(p, p_j);
+        }
+    }
+    return out; 
+}
+
 
 Vector GravityForce::computeForce(ParticleState p)
 {

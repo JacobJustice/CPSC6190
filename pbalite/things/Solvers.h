@@ -73,6 +73,7 @@ class SixthOrderSolver : public Solver
         LeapfrogSolver l_s_alpha;
         LeapfrogSolver l_s_beta;
 };
+
 class MeshSolver : public Solver
 {
     public:
